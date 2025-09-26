@@ -4,11 +4,9 @@ let currentCalculation = null;
 
 // Factores de conversión por especie
 const speciesFactors = {
-    tilapia: { fcr: 1.6, tempOptimal: 28, proteinReq: 0.35 },
-    trucha: { fcr: 1.2, tempOptimal: 16, proteinReq: 0.42 },
-    carpa: { fcr: 1.8, tempOptimal: 25, proteinReq: 0.30 },
-    bagre: { fcr: 1.5, tempOptimal: 26, proteinReq: 0.32 },
-    salmon: { fcr: 1.1, tempOptimal: 14, proteinReq: 0.45 }
+    boga: { fcr: 1.6, tempOptimal: 28, proteinReq: 0.35 },
+    pacu: { fcr: 1.2, tempOptimal: 16, proteinReq: 0.42 },
+    sabalo: { fcr: 1.8, tempOptimal: 25, proteinReq: 0.30 }
 };
 
 // Factores climáticos

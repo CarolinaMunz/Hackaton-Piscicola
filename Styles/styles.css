@@ -1748,6 +1748,22 @@ label {
     transform: translateY(-1px);
 }
 
+.calculate-btn.glow {
+    animation: glowing 2s infinite;
+}
+
+@keyframes glowing {
+    0% {
+        box-shadow: 0 0 5px var(--secondary-color);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--secondary-color), 0 0 30px var(--secondary-light);
+    }
+    100% {
+        box-shadow: 0 0 5px var(--secondary-color);
+    }
+}
+
 /* Results Section */
 .results {
     background: var(--bg-white);
@@ -3650,7 +3666,7 @@ label {
     background: #28a745;
     color: white;
     text-align: center;
-    padding: 0.5rem;
+    padding: 0.2 rem;
     font-weight: 700;
     font-size: 0.9rem;
 }
@@ -3662,10 +3678,6 @@ label {
     text-align: center;
 }
 
-.plan-card.featured .plan-header {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    padding-top: 2rem;
-}
 
 .plan-name {
     font-size: 1.5rem;
@@ -3760,7 +3772,9 @@ label {
     align-self: flex-end;
 }
 
-.plan-card.featured .plan-button {
+
+
+.botonverde {
     background: linear-gradient(135deg, #28a745, #20c997);
 }
 

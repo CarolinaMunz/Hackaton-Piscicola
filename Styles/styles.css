@@ -3633,7 +3633,7 @@ label {
 }
 
 .plan-features {
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -3641,17 +3641,16 @@ label {
 
 .features-list {
     list-style: none;
-    margin-bottom: 1.5rem;
+    margin: 0 0 1rem 0;
+    padding: 0;
     flex-grow: 1;
 }
 
 .features-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.6rem 0;
+    display: block;
+    padding: 0.35rem 0;
     font-size: 1rem;
-    border-bottom: 1px solid #f8f9fa;
+    border-bottom: 1px solid #f1f3f5;
 }
 
 .features-list li:last-child {
@@ -3659,16 +3658,31 @@ label {
 }
 
 .feature-icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: 0.625rem;
+    line-height: 1;
     flex-shrink: 0;
+}
+
+/* Oculta íconos en la lista de features para un look minimalista */
+.features-list .feature-icon { display: none; }
+
+/* Asegura que el ícono no aporte espacio extra dentro del contenedor redondo */
+.features-list .feature-icon i {
+    line-height: 1;
+}
+
+/* Asegura un texto compacto y alineado verticalmente */
+.features-list li span {
+    line-height: 1.2;
+    display: block;
 }
 
 .plan-button {

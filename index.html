@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedFlow - Sistema de Alimentación para Piscicultura</title>
+    <!-- CSS Files in Order -->
+    <link rel="stylesheet" href="Styles/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-fish"></i>
+                    <div class="logo-text">
+                        <h1>FeedFlow</h1>
+                        <p>Sistema Inteligente de Alimentación</p>
+                    </div>
+                </div>
+                
+                <nav class="navbar">
+                    <ul class="nav-menu">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link active">
+                                <i class="fas fa-home"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#calculator" class="nav-link">
+                                <i class="fas fa-calculator"></i>
+                                <span>Calculadora</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="templates/Dashboard.html" class="nav-link">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="templates/Productos.html" class="nav-link">
+                                <i class="fas fa-box"></i>
+                                <span>Productos</span>
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="nav-toggle">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero" style="background-image: linear-gradient(rgba(44, 90, 160, 0.75), rgba(30, 58, 95, 0.85)), url('fondo.jpg'); background-size: cover; background-position: center; background-attachment: fixed;">
+                <div class="hero-content">
+                    <h2>Optimiza tu Piscicultura con FeedFlow</h2>
+                    <p>El sistema más avanzado para calcular, monitorear y optimizar la alimentación de tus peces. Aumenta tu productividad y reduce costos con tecnología inteligente.</p>
+                    <div class="hero-buttons">
+                        <a href="#calculator" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i>
+                            Comenzar Cálculo
+                        </a>
+                        <a href="templates/Productos.html" class="btn btn-secondary">
+                            <i class="fas fa-info-circle"></i>
+                            Ver Productos
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <i class="fas fa-fish fa-10x"></i>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features">
+                <h3>Características Principales</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h4>Cálculo Preciso</h4>
+                        <p>Algoritmos avanzados que consideran especie, edad, temperatura y condiciones ambientales para calcular la alimentación óptima.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Estadísticas Detalladas</h4>
+                        <p>Monitorea el crecimiento, consumo de alimento y eficiencia de tu piscicultura con gráficos y reportes detallados.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h4>Automatización</h4>
+                        <p>Sistemas automatizados de alimentación que se adaptan a las condiciones ambientales en tiempo real.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Access Section -->
+            <section class="quick-access">
+                <h3>Acceso Rápido</h3>
+                <div class="quick-grid">
+                    <a href="#calculator" class="quick-card">
+                        <i class="fas fa-calculator"></i>
+                        <h4>Calculadora</h4>
+                        <p>Calcula la alimentación óptima para tus peces</p>
+                    </a>
+                    <a href="templates/Dashboard.html" class="quick-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Dashboard</h4>
+                        <p>Revisa el rendimiento de tu piscicultura</p>
+                    </a>
+                    <a href="templates/Productos.html" class="quick-card">
+                        <i class="fas fa-box"></i>
+                        <h4>Productos</h4>
+                        <p>Conoce nuestras gamas de productos</p>
+                    </a>
+                </div>
+            </section>
+            
+            <!-- Calculator Section -->
+            <section id="calculator" class="calculator-section" style="background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,249,250,0.95)); padding: 4rem 0; border-radius: 20px; margin: 2rem 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div class="section-header">
+                    <h2 class="gradient-text" style="font-size: 2.8rem;">Calculadora de Alimentación</h2>
+                    <p style="font-size: 1.2rem; color: var(--text-secondary);">Calcula la cantidad óptima de alimento para tus peces basado en parámetros científicos</p>
+                </div>
+                
+                <div class="calculator-container">
+                    <div class="calculator-grid">
+                        <div class="input-group">
+                            <label for="species">Especie de Pez</label>
+                            <select id="species" onchange="updateCalculation()">
+                                <option value="">Seleccione una especie</option>
+                                <option value="tilapia">Tilapia</option>
+                                <option value="trucha">Trucha</option>
+                                <option value="carpa">Carpa</option>
+                                <option value="bagre">Bagre</option>
+                                <option value="salmon">Salmón</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="age">Edad (semanas)</label>
+                            <input type="number" id="age" placeholder="Ej: 12" min="1" max="200" onchange="updateCalculation()">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="biomass">Biomasa Total (kg)</label>
+                            <input type="number" id="biomass" placeholder="Ej: 500" min="1" step="0.1" onchange="updateCalculation()">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="temperature">Temperatura del Agua (°C)</label>
+                            <input type="number" id="temperature" placeholder="Ej: 26" min="5" max="40" step="0.1" onchange="updateCalculation()">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="weather">Condiciones Climáticas</label>
+                            <select id="weather" onchange="updateCalculation()">
+                                <option value="">Seleccione el clima</option>
+                                <option value="sunny">Soleado</option>
+                                <option value="cloudy">Nublado</option>
+                                <option value="rainy">Lluvioso</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="feedType">Tipo de Alimento</label>
+                            <select id="feedType" onchange="updateCalculation()">
+                                <option value="">Seleccione el tipo</option>
+                                <option value="starter">Iniciador (Alevines)</option>
+                                <option value="growth">Crecimiento (Juveniles)</option>
+                                <option value="finishing">Engorde (Adultos)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="feedPrice">Precio del Alimento ($/kg)</label>
+                            <input type="number" id="feedPrice" placeholder="Ej: 2.50" min="0.1" step="0.01" onchange="updateCalculation()">
+                        </div>
+                        
+                        <div class="input-group full-width">
+                            <button type="button" class="calculate-btn glow" onclick="calculateFeeding()">
+                                <i class="fas fa-calculator"></i>
+                                Calcular Alimentación
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="results" class="results" style="display: none;">
+                        <h3><i class="fas fa-chart-pie"></i> Resultados del Cálculo</h3>
+                        <div class="result-grid">
+                            <div class="result-card">
+                                <h4>Cantidad Diaria</h4>
+                                <p id="dailyAmount">0 kg</p>
+                            </div>
+                            <div class="result-card">
+                                <h4>Frecuencia</h4>
+                                <p id="frequency">0 veces/día</p>
+                            </div>
+                            <div class="result-card">
+                                <h4>Costo Diario</h4>
+                                <p id="dailyCost">$0</p>
+                            </div>
+                            <div class="result-card">
+                                <h4>Costo Mensual</h4>
+                                <p id="monthlyCost">$0</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="button" class="save-btn" onclick="saveCalculation()">
+                                <i class="fas fa-save"></i>
+                                Guardar Cálculo
+                            </button>
+                            <a href="templates/Dashboard.html" class="btn btn-secondary">
+                                <i class="fas fa-chart-bar"></i>
+                                Ver Estadísticas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-fish"></i>
+                        <h3>FeedFlow</h3>
+                    </div>
+                    <p>Sistema diseñado para productores acuícolas que buscan optimizar su producción y reducir costos operativos.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="#calculator">Calculadora</a></li>
+                        <li><a href="templates/Dashboard.html">Dashboard</a></li>
+                        <li><a href="templates/Productos.html">Productos</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> 1-800-FEEDFLOW</p>
+                        <p><i class="fas fa-envelope"></i> info@feedflow.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Misiones-Argentina</p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Síguenos</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 FeedFlow. Todos los derechos reservados.</p>
+                <p>Sistema diseñado para productores acuícolas.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

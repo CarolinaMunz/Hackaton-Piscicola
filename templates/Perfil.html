@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario - FeedFlow</title>
+    <link rel="stylesheet" href="/Styles/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Ajustes específicos y mínimos para la página de perfil */
+        .profile-hero {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+        .profile-container {
+            padding: 3rem 0;
+        }
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+        .profile-card {
+            background: var(--bg-white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+        .profile-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem 1.5rem;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--secondary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: var(--shadow-lg);
+        }
+        .profile-name { font-weight: 800; font-size: 1.4rem; color: var(--primary-dark); }
+        .profile-role { color: var(--text-secondary); font-weight: 600; }
+        .profile-actions { display: grid; grid-template-columns: 1fr; gap: .75rem; width: 100%; margin-top: .5rem; }
+        .profile-actions .btn { width: 100%; justify-content: center; }
+
+        .details {
+            padding: 1.5rem 1.5rem 0 1.5rem;
+        }
+        .section-block {
+            background: var(--bg-white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-block h3 {
+            color: var(--primary-color);
+            font-weight: 800;
+            margin-bottom: .75rem;
+            position: relative;
+        }
+        .section-block h3::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            border-radius: 999px;
+            margin-top: .35rem;
+        }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .info-item { background: #f8f9fa; border-radius: 10px; padding: .9rem; border: 1px solid #eef1f5; }
+        .info-item small { color: var(--text-secondary); display: block; margin-bottom: .25rem; font-weight: 600; }
+        .info-item span { color: var(--text-primary); font-weight: 700; }
+
+        @media (max-width: 992px) {
+            .profile-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-fish"></i>
+                    <div class="logo-text">
+                        <h1>FeedFlow</h1>
+                        <p>Sistema Inteligente de Alimentación</p>
+                    </div>
+                </div>
+                <nav class="navbar">
+                    <ul class="nav-menu">
+                        <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+                        <li class="nav-item"><a href="../index.html#calculator" class="nav-link"><i class="fas fa-calculator"></i><span>Calculadora</span></a></li>
+                        <li class="nav-item"><a href="Dashboard.html" class="nav-link"><i class="fas fa-chart-bar"></i><span>Dashboard</span></a></li>
+                        <li class="nav-item"><a href="Productos.html" class="nav-link"><i class="fas fa-box"></i><span>Productos</span></a></li>
+                        <li class="nav-item"><a href="Perfil.html" class="nav-link active"><i class="fas fa-user"></i><span>Perfil</span></a></li>
+                    </ul>
+                    <div class="nav-toggle">
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                        <span class="bar"></span>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="profile-hero">
+        <div class="container">
+            <h1 class="gradient-text-animated" style="-webkit-text-fill-color: inherit; color: white;">Perfil de Usuario</h1>
+            <p style="max-width: 720px; opacity: .9;">Gestiona tu información personal, preferencias y seguridad de tu cuenta FeedFlow.</p>
+        </div>
+    </section>
+
+    <main class="profile-container">
+        <div class="container">
+            <div class="profile-grid">
+                <aside class="profile-card profile-side">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <div class="profile-name">Nombre del Usuario</div>
+                    <div class="profile-role">Productor Acuícola</div>
+                    <div class="profile-actions">
+                        <a href="#" class="btn btn-primary"><i class="fas fa-pen"></i> Editar Perfil</a>
+                        <a href="#" class="btn btn-secondary"><i class="fas fa-shield-alt"></i> Seguridad</a>
+                        <a href="#" class="btn btn-outline"><i class="fas fa-right-from-bracket"></i> Cerrar Sesión</a>
+                    </div>
+                </aside>
+
+                <section class="details">
+                    <div class="section-block">
+                        <h3>Información Personal</h3>
+                        <div class="info-grid">
+                            <div class="info-item"><small>Nombre</small><span>Juan Pérez</span></div>
+                            <div class="info-item"><small>Email</small><span>juan.perez@feedflow.com</span></div>
+                            <div class="info-item"><small>Teléfono</small><span>+54 9 370 555 1234</span></div>
+                            <div class="info-item"><small>Ubicación</small><span>Misiones, Argentina</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <h3>Preferencias</h3>
+                        <div class="info-grid">
+                            <div class="info-item"><small>Idioma</small><span>Español</span></div>
+                            <div class="info-item"><small>Notificaciones</small><span>Habilitadas</span></div>
+                            <div class="info-item"><small>Tema</small><span>Claro</span></div>
+                            <div class="info-item"><small>Suscripción</small><span>Profesional</span></div>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <h3>Actividad Reciente</h3>
+                        <p class="text-secondary">Último acceso: hace 2 horas • Cambios en calculadora y revisión de dashboard.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-fish"></i>
+                        <h3>FeedFlow</h3>
+                    </div>
+                    <p>Sistema diseñado para productores acuícolas que buscan optimizar su producción y reducir costos operativos.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="../index.html#calculator">Calculadora</a></li>
+                        <li><a href="Dashboard.html">Dashboard</a></li>
+                        <li><a href="Productos.html">Productos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> 1-800-FEEDFLOW</p>
+                        <p><i class="fas fa-envelope"></i> info@feedflow.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Misiones-Argentina</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Síguenos</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FeedFlow. Todos los derechos reservados.</p>
+                <p>Sistema diseñado para productores acuícolas.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.querySelector('.nav-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    navToggle.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

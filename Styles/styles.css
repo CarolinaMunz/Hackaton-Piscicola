@@ -1379,9 +1379,9 @@ label {
 .hero {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xxl);
-    margin-bottom: var(--spacing-xxxl);
-    padding: var(--spacing-xxl) 0;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xxl);
+    padding: var(--spacing-lg) 0;
     background: var(--bg-white);
     border-radius: var(--border-radius-xxl);
     box-shadow: var(--shadow-xl);
@@ -1408,20 +1408,16 @@ label {
 
 .hero-content h2 {
     font-size: var(--font-size-5xl);
-    color: var(--primary-color);
+    color: #ffffff;
     margin-bottom: var(--spacing-md);
     font-weight: 700;
     line-height: 1.2;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .hero-content p {
     font-size: var(--font-size-xl);
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
     line-height: 1.6;
 }
 
@@ -1432,13 +1428,13 @@ label {
 }
 
 .hero-image {
-    flex: 0 0 300px;
+    flex: 0 0 240px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--primary-color);
     opacity: 0.1;
-    font-size: 15rem;
+    font-size: 10rem;
     animation: pulse 4s ease-in-out infinite;
 }
 

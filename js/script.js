@@ -52,21 +52,18 @@ function showSection(sectionId) {
 
 // Actualizar cálculo en tiempo real
 function updateCalculation() {
-    const species = document.getElementById('species').value;
-    const age = parseFloat(document.getElementById('age').value);
-    const biomass = parseFloat(document.getElementById('biomass').value);
-    const temperature = parseFloat(document.getElementById('temperature').value);
-    const weather = document.getElementById('weather').value;
-    const feedType = document.getElementById('feedType').value;
-    const feedPrice = parseFloat(document.getElementById('feedPrice').value);
+    const { species, age, biomass, temperature, weather, feedType, feedPrice } = getCalculationInputValues();
 
     if (species && age && biomass && temperature && weather && feedType && feedPrice) {
         calculateFeeding();
     }
 }
 
-// Función principal de cálculo
-function calculateFeeding() {
+/**
+ * Retrieves the input values from the calculation form.
+ * @returns {object} An object containing the input values.
+ */
+function getCalculationInputValues() {
     const species = document.getElementById('species').value;
     const age = parseFloat(document.getElementById('age').value);
     const biomass = parseFloat(document.getElementById('biomass').value);
@@ -74,13 +71,59 @@ function calculateFeeding() {
     const weather = document.getElementById('weather').value;
     const feedType = document.getElementById('feedType').value;
     const feedPrice = parseFloat(document.getElementById('feedPrice').value);
+    return { species, age, biomass, temperature, weather, feedType, feedPrice };
+}
 
-    // Validar datos
+/**
+ * Validates the input values for the calculation.
+ * @param {object} inputValues An object containing the input values.
+ * @returns {boolean} True if the input values are valid, false otherwise.
+ */
+function validateCalculationInputs({ species, age, biomass, temperature, weather, feedType, feedPrice }) {
     if (!species || !age || !biomass || !temperature || !weather || !feedType || !feedPrice) {
         showAlert('Por favor, complete todos los campos para realizar el cálculo.', 'warning');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Calculates the factors based on the input values.
+ * @param {string} species The species of the fish.
+ * @param {number} age The age of the fish in weeks.
+ * @param {number} temperature The temperature of the water.
+ * @param {string} weather The weather conditions.
+ * @returns {object} An object containing the calculated factors.
+ */
+function calculateFactors(species, age, temperature, weather) {
+    const speciesFactor = speciesFactors[species];
+    const ageFactor = getAgeFactor(age);
+    const tempFactor = getTemperatureFactor(temperature, speciesFactor.tempOptimal);
+    const weatherFactor = weatherFactors[weather];
+    return { speciesFactor, ageFactor, tempFactor, weatherFactor };
+}
+
+/**
+ * Calculates the daily feed rate based on the provided factors and biomass.
+ * @param {number} biomass The biomass of the fish.
+ * @param {number} ageFactor The age factor.
+ * @param {number} tempFactor The temperature factor.
+ * @param {number} weatherFactor The weather factor.
+ * @returns {number} The calculated daily feed rate.
+ */
+function calculateDailyFeedRate(biomass, ageFactor, tempFactor, weatherFactor) {
+    return biomass * ageFactor * tempFactor * weatherFactor;
+}
+
+// Función principal de cálculo
+function calculateFeeding() {
+    const { species, age, biomass, temperature, weather, feedType, feedPrice } = getCalculationInputValues();
+
+    // Validar datos
+    if (!validateCalculationInputs({ species, age, biomass, temperature, weather, feedType, feedPrice })) {
         return;
     }
-    
+
     // Mostrar loading en los resultados
     const resultElements = ['dailyAmount', 'frequency', 'dailyCost', 'monthlyCost'];
     resultElements.forEach(id => {
@@ -94,13 +137,10 @@ function calculateFeeding() {
     setTimeout(() => {
 
     // Obtener factores
-    const speciesFactor = speciesFactors[species];
-    const ageFactor = getAgeFactor(age);
-    const tempFactor = getTemperatureFactor(temperature, speciesFactor.tempOptimal);
-    const weatherFactor = weatherFactors[weather];
+    const { speciesFactor, ageFactor, tempFactor, weatherFactor } = calculateFactors(species, age, temperature, weather);
 
     // Calcular cantidad diaria de alimento
-    let dailyFeedRate = biomass * ageFactor * tempFactor * weatherFactor;
+    let dailyFeedRate = calculateDailyFeedRate(biomass, ageFactor, tempFactor, weatherFactor);
     
     // Ajustar por tipo de alimento
     const feedTypeFactors = {
@@ -164,18 +204,49 @@ function calculateFeeding() {
     }, 1500);
 }
 
-// Guardar cálculo
-function saveCalculation() {
-    if (!currentCalculation) {
-        showAlert('No hay cálculo para guardar. Realice un cálculo primero.', 'warning');
-        return;
-    }
+/**
+ * Filters the saved calculations based on the selected period.
+ * @param {Array<object>} data The array of saved calculations.
+ * @param {string} period The selected period ('biweekly', 'monthly', 'yearly').
+ * @returns {Array<object>} The filtered array of saved calculations.
+ */
+function getFilteredData(data, period) {
+    const now = new Date();
+    const periodDurations = {
+        biweekly: 14,
+        monthly: 30,
+        yearly: 365
+    };
+    const duration = periodDurations[period] || 30; // Default to monthly
+    const startDate = new Date(now.getTime() - (duration * 24 * 60 * 60 * 1000));
+    return data.filter(calc => new Date(calc.date) >= startDate);
+}
 
-    savedCalculations.push(currentCalculation);
-    localStorage.setItem('feedflowCalculations', JSON.stringify(savedCalculations));
-    
-    showAlert('¡Cálculo guardado exitosamente! Puede verlo en la sección de Dashboard.', 'success');
-    createConfetti();
+/**
+ * Calculates the statistics based on the filtered data.
+ * @param {Array<object>} filteredData The filtered array of saved calculations.
+ * @returns {object} An object containing the calculated statistics.
+ */
+function calculateStatistics(filteredData) {
+    const totalFeed = filteredData.reduce((sum, calc) => sum + calc.dailyAmount, 0);
+    const totalCost = filteredData.reduce((sum, calc) => sum + calc.dailyCost, 0);
+    const avgBiomass = filteredData.reduce((sum, calc) => sum + calc.biomass, 0) / filteredData.length;
+    const efficiency = (totalFeed / avgBiomass).toFixed(1);
+    return { totalFeed, totalCost, avgBiomass, efficiency };
+}
+
+/**
+ * Updates the statistics UI with the calculated statistics.
+ * @param {number} totalFeed The total feed amount.
+ * @param {number} totalCost The total cost.
+ * @param {number} avgBiomass The average biomass.
+ * @param {string} efficiency The efficiency.
+ */
+function updateStatsUI(totalFeed, totalCost, avgBiomass, efficiency) {
+    document.getElementById('totalFeed').textContent = totalFeed.toFixed(1) + ' kg';
+    document.getElementById('biomassGrowth').textContent = (avgBiomass * 0.15).toFixed(1) + ' kg';
+    document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(2);
+    document.getElementById('efficiency').textContent = efficiency + ':1';
 }
 
 // Generar estadísticas
@@ -187,7 +258,7 @@ function generateStats() {
         generateSampleData();
     }
 
-    let filteredData = filterDataByPeriod(savedCalculations, period);
+    const filteredData = getFilteredData(savedCalculations, period);
     
     if (filteredData.length === 0) {
         alert('No hay datos suficientes para el período seleccionado.');
@@ -195,16 +266,10 @@ function generateStats() {
     }
 
     // Calcular estadísticas
-    const totalFeed = filteredData.reduce((sum, calc) => sum + calc.dailyAmount, 0);
-    const totalCost = filteredData.reduce((sum, calc) => sum + calc.dailyCost, 0);
-    const avgBiomass = filteredData.reduce((sum, calc) => sum + calc.biomass, 0) / filteredData.length;
-    const efficiency = (totalFeed / avgBiomass).toFixed(1);
+    const { totalFeed, totalCost, avgBiomass, efficiency } = calculateStatistics(filteredData);
 
     // Actualizar interfaz
-    document.getElementById('totalFeed').textContent = totalFeed.toFixed(1) + ' kg';
-    document.getElementById('biomassGrowth').textContent = (avgBiomass * 0.15).toFixed(1) + ' kg';
-    document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(2);
-    document.getElementById('efficiency').textContent = efficiency + ':1';
+    updateStatsUI(totalFeed, totalCost, avgBiomass, efficiency);
 
     // Generar gráfico simple
     drawSimpleChart(filteredData);
@@ -213,22 +278,13 @@ function generateStats() {
 // Filtrar datos por período
 function filterDataByPeriod(data, period) {
     const now = new Date();
-    let startDate;
-
-    switch (period) {
-        case 'biweekly':
-            startDate = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
-            break;
-        case 'monthly':
-            startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-            break;
-        case 'yearly':
-            startDate = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
-            break;
-        default:
-            startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-    }
-
+    const periodDurations = {
+        biweekly: 14,
+        monthly: 30,
+        yearly: 365
+    };
+    const duration = periodDurations[period] || 30; // Default to monthly
+    const startDate = new Date(now.getTime() - (duration * 24 * 60 * 60 * 1000));
     return data.filter(calc => new Date(calc.date) >= startDate);
 }
 
@@ -265,139 +321,66 @@ function generateSampleData() {
 // Dibujar gráfico simple
 function drawSimpleChart(data) {
     const canvas = document.getElementById('feedChart');
+    if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
-    
-    // Limpiar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Configuración del gráfico
-    const padding = 40;
-    const chartWidth = canvas.width - (padding * 2);
-    const chartHeight = canvas.height - (padding * 2);
-    
-    // Preparar datos
-    const maxValue = Math.max(...data.map(d => d.dailyAmount));
-    const minValue = Math.min(...data.map(d => d.dailyAmount));
-    const range = maxValue - minValue;
-    
-    // Dibujar ejes
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
-    ctx.stroke();
-    
-    // Dibujar línea de datos
-    ctx.strokeStyle = '#2c5aa0';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    
-    data.forEach((point, index) => {
-        const x = padding + (index / (data.length - 1)) * chartWidth;
-        const y = canvas.height - padding - ((point.dailyAmount - minValue) / range) * chartHeight;
-        
-        if (index === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
+    if (!ctx) return;
+
+    // Destroy any existing chart
+    if (window.myChart) {
+        window.myChart.destroy();
+    }
+
+    const labels = data.map(d => new Date(d.date).toLocaleDateString());
+    const dailyAmounts = data.map(d => d.dailyAmount);
+
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Consumo de Alimento por Día (kg)',
+                data: dailyAmounts,
+                borderColor: '#2c5aa0',
+                borderWidth: 3,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Cantidad (kg)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Consumo de Alimento por Día',
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            }
         }
     });
-    
-    ctx.stroke();
-    
-    // Dibujar puntos
-    ctx.fillStyle = '#28a745';
-    data.forEach((point, index) => {
-        const x = padding + (index / (data.length - 1)) * chartWidth;
-        const y = canvas.height - padding - ((point.dailyAmount - minValue) / range) * chartHeight;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
-        ctx.fill();
-    });
-    
-    // Etiquetas
-    ctx.fillStyle = '#333';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Consumo de Alimento por Día (kg)', canvas.width / 2, canvas.height - 10);
-    
-    ctx.save();
-    ctx.translate(15, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Cantidad (kg)', 0, 0);
-    ctx.restore();
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar página loader
-    initPageLoader();
-    
-    // Inicializar animaciones de scroll
-    initScrollAnimations();
-    
-    // Inicializar header sticky
-    initStickyHeader();
-    
-    // Inicializar navegación móvil
-    initMobileNavigation();
-    
-    // Inicializar partículas
-    initParticles();
-    
-    // Mostrar sección calculadora por defecto si existe
-    if (document.getElementById('calculator')) {
-        showSection('calculator');
-    }
-    
-    // Generar estadísticas iniciales si existe
-    if (typeof generateStats === 'function') {
-        generateStats();
-    }
-    
-    // Agregar eventos a los botones de productos
-    document.querySelectorAll('.product-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productCard = this.closest('.product-card');
-            const productName = productCard.querySelector('h3').textContent;
-            showAlert(`¡Gracias por su interés en ${productName}! Un representante se contactará con usted pronto para finalizar la compra.`, 'success');
-        });
-    });
-    
-    // Agregar smooth scroll a los enlaces
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-});
-
-// Inicializar page loader
-function initPageLoader() {
-    const loader = document.createElement('div');
-    loader.className = 'page-loader';
-    loader.innerHTML = '<div class="loader"></div>';
-    document.body.appendChild(loader);
-    
-    window.addEventListener('load', function() {
-        setTimeout(() => {
-            loader.classList.add('hidden');
-            setTimeout(() => loader.remove(), 500);
-        }, 800);
-    });
-}
-
-// Inicializar animaciones de scroll
 function initScrollAnimations() {
     const observerOptions = {
         threshold: 0.1,
@@ -412,23 +395,33 @@ function initScrollAnimations() {
         });
     }, observerOptions);
     
-    // Agregar clases de animación a elementos
-    document.querySelectorAll('.feature-card').forEach((el, index) => {
-        el.classList.add('fade-in');
-        el.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(el);
-    });
+    const animationElements = [
+        { selector: '.feature-card', animationClass: 'fade-in' },
+        { selector: '.quick-card', animationClass: 'slide-in-left' },
+        { selector: '.stat-card', animationClass: 'scale-in' }
+    ];
     
-    document.querySelectorAll('.quick-card').forEach((el, index) => {
-        el.classList.add('slide-in-left');
-        el.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(el);
+    animationElements.forEach(element => {
+        document.querySelectorAll(element.selector).forEach((el, index) => {
+            el.classList.add(element.animationClass);
+            el.style.transitionDelay = `${index * 0.1}s`;
+            observer.observe(el);
+        });
     });
+}
+
+// Inicializar page loader
+function initPageLoader() {
+    const loader = document.createElement('div');
+    loader.className = 'page-loader';
+    loader.innerHTML = '<div class="loader"></div>';
+    document.body.appendChild(loader);
     
-    document.querySelectorAll('.stat-card').forEach((el, index) => {
-        el.classList.add('scale-in');
-        el.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(el);
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 500);
+        }, 800);
     });
 }
 
@@ -527,13 +520,6 @@ function showAlert(message, type = 'info') {
         info: 'fas fa-info-circle'
     };
     
-    const colors = {
-        success: '#28a745',
-        error: '#dc3545',
-        warning: '#ffc107',
-        info: '#17a2b8'
-    };
-    
     alertDiv.innerHTML = `
         <i class="${icons[type] || icons.info}"></i>
         <span>${message}</span>
@@ -541,47 +527,6 @@ function showAlert(message, type = 'info') {
             <i class="fas fa-times"></i>
         </button>
     `;
-    
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${colors[type] || colors.info};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        z-index: 1000;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        max-width: 400px;
-        animation: slideInAlert 0.3s ease;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.1);
-    `;
-    
-    // Estilo para el botón de cerrar
-    const closeBtn = alertDiv.querySelector('.alert-close');
-    closeBtn.style.cssText = `
-        background: none;
-        border: none;
-        color: white;
-        cursor: pointer;
-        padding: 0.2rem;
-        border-radius: 50%;
-        transition: all 0.2s ease;
-        margin-left: auto;
-    `;
-    
-    closeBtn.addEventListener('mouseenter', function() {
-        this.style.background = 'rgba(255,255,255,0.2)';
-    });
-    
-    closeBtn.addEventListener('mouseleave', function() {
-        this.style.background = 'none';
-    });
     
     document.body.appendChild(alertDiv);
     
@@ -599,28 +544,11 @@ if (!document.getElementById('alert-animations')) {
     const style = document.createElement('style');
     style.id = 'alert-animations';
     style.textContent = `
-        @keyframes slideInAlert {
-            from { 
-                transform: translateX(100%) scale(0.8); 
-                opacity: 0; 
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
             }
-            to { 
-                transform: translateX(0) scale(1); 
-                opacity: 1; 
-            }
-        }
-        @keyframes slideOutAlert {
-            from { 
-                transform: translateX(0) scale(1); 
-                opacity: 1; 
-            }
-            to { 
-                transform: translateX(100%) scale(0.8); 
-                opacity: 0; 
-            }
-        }
-        .nav-open {
-            overflow: hidden;
         }
     `;
     document.head.appendChild(style);

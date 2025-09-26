@@ -4115,3 +4115,78 @@ label {
         padding: 2rem 0;
     }
 }
+/* Alert Styles */
+.alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #17a2b8;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    z-index: 1000;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 400px;
+    animation: slideInAlert 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.alert-success {
+    background: #28a745;
+}
+
+.alert-error {
+    background: #dc3545;
+}
+
+.alert-warning {
+    background: #ffc107;
+    color: #333;
+}
+
+.alert-info {
+    background: #17a2b8;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.alert-close:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Alert Animations */
+@keyframes slideInAlert {
+    from {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutAlert {
+    from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%) scale(0.8);
+        opacity: 0;
+    }
+}

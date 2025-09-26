@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="../Styles/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Librerías para generar reportes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -73,6 +77,25 @@
                 <p>Análisis completo de tu operación piscícola</p>
             </div>
 
+            <!-- Period Filter Controls -->
+            <div class="period-filter">
+                <h3><i class="fas fa-calendar-alt"></i> Seleccionar Período</h3>
+                <div class="filter-controls">
+                    <button class="period-btn active" data-period="monthly">
+                        <i class="fas fa-calendar"></i>
+                        <span>Mensual</span>
+                    </button>
+                    <button class="period-btn" data-period="biweekly">
+                        <i class="fas fa-calendar-week"></i>
+                        <span>Quincenal</span>
+                    </button>
+                    <button class="period-btn" data-period="yearly">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Anual</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Statistics Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -102,7 +125,20 @@
 
             <!-- Charts -->
             <div class="chart-container">
-                <h3>Consumo de Alimento - Últimos 12 Meses</h3>
+                <div class="chart-header">
+                    <h3 id="chart-title">Consumo de Alimento - Últimos 12 Meses</h3>
+                    <!-- Report Generation Controls - Floating Action Bar -->
+                    <div class="report-actions">
+                        <button class="report-btn pdf-btn" onclick="generatePDFReport()" title="Generar Reporte PDF">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </button>
+                        <button class="report-btn excel-btn" onclick="generateExcelReport()" title="Generar Reporte Excel">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
+                    </div>
+                </div>
                 <canvas id="feedChart" width="400" height="200"></canvas>
             </div>
         </div>
@@ -139,14 +175,100 @@
     <script src="../js/script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('feedChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
+            // Datos para diferentes períodos
+            const periodData = {
+                monthly: {
                     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    data: [420, 445, 480, 465, 490, 485, 520, 510, 485, 495, 475, 485],
+                    stats: {
+                        totalFish: '12,450',
+                        biomass: '2,840',
+                        feedConsumed: '485.2',
+                        feedCost: '$1,247',
+                        changes: {
+                            fish: '+8.5% vs mes anterior',
+                            biomass: '+12.3% vs mes anterior',
+                            feed: '+5.7% vs mes anterior',
+                            cost: '-3.2% vs mes anterior'
+                        }
+                    }
+                },
+                biweekly: {
+                    labels: ['Q1 Ene', 'Q2 Ene', 'Q1 Feb', 'Q2 Feb', 'Q1 Mar', 'Q2 Mar', 'Q1 Abr', 'Q2 Abr', 'Q1 May', 'Q2 May', 'Q1 Jun', 'Q2 Jun'],
+                    data: [210, 230, 240, 245, 250, 245, 260, 255, 245, 250, 240, 245],
+                    stats: {
+                        totalFish: '12,450',
+                        biomass: '2,840',
+                        feedConsumed: '242.6',
+                        feedCost: '$624',
+                        changes: {
+                            fish: '+4.2% vs quincena anterior',
+                            biomass: '+6.1% vs quincena anterior',
+                            feed: '+2.8% vs quincena anterior',
+                            cost: '-1.6% vs quincena anterior'
+                        }
+                    }
+                },
+                yearly: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                    data: [4200, 4500, 4800, 5200, 5800, 6200],
+                    stats: {
+                        totalFish: '12,450',
+                        biomass: '2,840',
+                        feedConsumed: '5,820',
+                        feedCost: '$14,964',
+                        changes: {
+                            fish: '+6.9% vs año anterior',
+                            biomass: '+8.7% vs año anterior',
+                            feed: '+6.9% vs año anterior',
+                            cost: '+5.2% vs año anterior'
+                        }
+                    }
+                }
+            };
+
+            let currentChart = null;
+            let currentPeriod = 'monthly';
+
+            // Función para actualizar las estadísticas
+            function updateStats(period) {
+                const data = periodData[period].stats;
+                document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = data.totalFish;
+                document.querySelector('.stat-card:nth-child(1) .stat-change').textContent = data.changes.fish;
+                
+                document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = data.biomass;
+                document.querySelector('.stat-card:nth-child(2) .stat-change').textContent = data.changes.biomass;
+                
+                document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = data.feedConsumed;
+                document.querySelector('.stat-card:nth-child(3) .stat-change').textContent = data.changes.feed;
+                
+                document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = data.feedCost;
+                document.querySelector('.stat-card:nth-child(4) .stat-change').textContent = data.changes.cost;
+            }
+
+            // Función para actualizar el gráfico
+            function updateChart(period) {
+                const ctx = document.getElementById('feedChart').getContext('2d');
+                const data = periodData[period];
+                
+                // Actualizar título del gráfico
+                const chartTitle = document.getElementById('chart-title');
+                const titleText = period === 'monthly' ? 'Últimos 12 Meses' : 
+                                period === 'biweekly' ? 'Últimas 12 Quincenas' : 
+                                'Últimos 6 Años';
+                chartTitle.textContent = `Consumo de Alimento - ${titleText}`;
+                
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+                
+                currentChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
                     datasets: [{
                         label: 'Consumo (kg)',
-                        data: [420, 445, 480, 465, 490, 485, 520, 510, 485, 495, 475, 485],
+                            data: data.data,
                         borderColor: '#2c5aa0',
                         backgroundColor: 'rgba(44, 90, 160, 0.1)',
                         borderWidth: 3,
@@ -155,9 +277,278 @@
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { display: false } }
-                }
+                        plugins: { 
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            // Inicializar con datos mensuales
+            updateStats('monthly');
+            updateChart('monthly');
+
+            // Event listeners para los botones de período
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remover clase active de todos los botones
+                    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                    // Agregar clase active al botón clickeado
+                    this.classList.add('active');
+                    
+                    // Obtener el período seleccionado
+                    const period = this.getAttribute('data-period');
+                    currentPeriod = period;
+                    
+                    // Actualizar estadísticas y gráfico
+                    updateStats(period);
+                    updateChart(period);
+                });
             });
+
+            // Función para obtener datos actuales del dashboard
+            function getCurrentDashboardData() {
+                const period = currentPeriod;
+                const data = periodData[period];
+                const stats = data.stats;
+                
+                return {
+                    period: period,
+                    periodName: period === 'monthly' ? 'Mensual' : period === 'biweekly' ? 'Quincenal' : 'Anual',
+                    stats: stats,
+                    chartData: {
+                        labels: data.labels,
+                        data: data.data
+                    },
+                    generatedDate: new Date().toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                };
+            }
+
+            // Función para mostrar notificaciones
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type}`;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                    <button class="alert-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 5000);
+            }
+
+            // Función para generar reporte PDF
+            window.generatePDFReport = function() {
+                const pdfBtn = document.querySelector('.pdf-btn');
+                pdfBtn.classList.add('loading');
+                
+                try {
+                    const dashboardData = getCurrentDashboardData();
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                
+                // Configuración del documento
+                doc.setProperties({
+                    title: `Reporte FeedFlow - ${dashboardData.periodName}`,
+                    subject: 'Reporte de Estadísticas Piscícolas',
+                    author: 'FeedFlow Sistema',
+                    creator: 'FeedFlow Dashboard'
+                });
+
+                // Título del reporte
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('FeedFlow - Reporte de Estadísticas', 20, 30);
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Período: ${dashboardData.periodName}`, 20, 45);
+                doc.text(`Generado: ${dashboardData.generatedDate}`, 20, 55);
+
+                // Estadísticas principales
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Estadísticas Principales', 20, 75);
+
+                // Tabla de estadísticas
+                const statsTable = [
+                    ['Métrica', 'Valor', 'Cambio'],
+                    ['Total de Peces', dashboardData.stats.totalFish, dashboardData.stats.changes.fish],
+                    ['Biomasa Total (kg)', dashboardData.stats.biomass, dashboardData.stats.changes.biomass],
+                    ['Alimento Consumido (kg)', dashboardData.stats.feedConsumed, dashboardData.stats.changes.feed],
+                    ['Costo de Alimentación', dashboardData.stats.feedCost, dashboardData.stats.changes.cost]
+                ];
+
+                doc.autoTable({
+                    startY: 85,
+                    head: [statsTable[0]],
+                    body: statsTable.slice(1),
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [44, 90, 160],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    }
+                });
+
+                // Datos del gráfico
+                const finalY = doc.lastAutoTable.finalY + 20;
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Datos de Consumo de Alimento', 20, finalY);
+
+                // Tabla de datos del gráfico
+                const chartTable = [['Período', 'Consumo (kg)']];
+                dashboardData.chartData.labels.forEach((label, index) => {
+                    chartTable.push([label, dashboardData.chartData.data[index].toString()]);
+                });
+
+                doc.autoTable({
+                    startY: finalY + 10,
+                    head: [chartTable[0]],
+                    body: chartTable.slice(1),
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [40, 167, 69],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 247, 250]
+                    }
+                });
+
+                // Pie de página
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'italic');
+                    doc.text(`Página ${i} de ${pageCount}`, 20, doc.internal.pageSize.height - 10);
+                    doc.text('FeedFlow - Sistema Inteligente de Alimentación', doc.internal.pageSize.width - 100, doc.internal.pageSize.height - 10);
+                }
+
+                // Descargar el PDF
+                const fileName = `FeedFlow_Reporte_${dashboardData.periodName}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                // Mostrar notificación de éxito
+                showNotification(`Reporte PDF generado exitosamente: ${fileName}`, 'success');
+                
+                } catch (error) {
+                    console.error('Error generando PDF:', error);
+                    showNotification('Error al generar el reporte PDF. Inténtalo de nuevo.', 'error');
+                } finally {
+                    pdfBtn.classList.remove('loading');
+                }
+            };
+
+            // Función para generar reporte Excel
+            window.generateExcelReport = function() {
+                const excelBtn = document.querySelector('.excel-btn');
+                excelBtn.classList.add('loading');
+                
+                try {
+                    const dashboardData = getCurrentDashboardData();
+                
+                // Crear un nuevo workbook
+                const wb = XLSX.utils.book_new();
+                
+                // Hoja de estadísticas principales
+                const statsData = [
+                    ['REPORTE FEEDFLOW - ESTADÍSTICAS PISCÍCOLAS'],
+                    [''],
+                    ['Período:', dashboardData.periodName],
+                    ['Generado:', dashboardData.generatedDate],
+                    [''],
+                    ['ESTADÍSTICAS PRINCIPALES'],
+                    ['Métrica', 'Valor', 'Cambio'],
+                    ['Total de Peces', dashboardData.stats.totalFish, dashboardData.stats.changes.fish],
+                    ['Biomasa Total (kg)', dashboardData.stats.biomass, dashboardData.stats.changes.biomass],
+                    ['Alimento Consumido (kg)', dashboardData.stats.feedConsumed, dashboardData.stats.changes.feed],
+                    ['Costo de Alimentación', dashboardData.stats.feedCost, dashboardData.stats.changes.cost],
+                    [''],
+                    ['DATOS DE CONSUMO DE ALIMENTO'],
+                    ['Período', 'Consumo (kg)']
+                ];
+
+                // Agregar datos del gráfico
+                dashboardData.chartData.labels.forEach((label, index) => {
+                    statsData.push([label, dashboardData.chartData.data[index]]);
+                });
+
+                const ws1 = XLSX.utils.aoa_to_sheet(statsData);
+                
+                // Configurar ancho de columnas
+                ws1['!cols'] = [
+                    { wch: 25 }, // Columna A
+                    { wch: 20 }, // Columna B
+                    { wch: 25 }  // Columna C
+                ];
+
+                XLSX.utils.book_append_sheet(wb, ws1, 'Estadísticas');
+
+                // Hoja de análisis detallado
+                const analysisData = [
+                    ['ANÁLISIS DETALLADO'],
+                    [''],
+                    ['Resumen del Período:', dashboardData.periodName],
+                    ['Fecha de Generación:', dashboardData.generatedDate],
+                    [''],
+                    ['MÉTRICAS DE RENDIMIENTO'],
+                    ['Indicador', 'Valor Actual', 'Tendencia'],
+                    ['Eficiencia Alimentaria', 'Calculada automáticamente', 'Positiva'],
+                    ['Crecimiento de Biomasa', dashboardData.stats.biomass + ' kg', 'En crecimiento'],
+                    ['Costo por Kg de Alimento', 'Calculado automáticamente', 'Optimizado'],
+                    [''],
+                    ['RECOMENDACIONES'],
+                    ['• Monitorear continuamente el consumo de alimento'],
+                    ['• Optimizar horarios de alimentación'],
+                    ['• Revisar calidad del alimento utilizado'],
+                    ['• Analizar tendencias de crecimiento']
+                ];
+
+                const ws2 = XLSX.utils.aoa_to_sheet(analysisData);
+                ws2['!cols'] = [
+                    { wch: 30 },
+                    { wch: 25 },
+                    { wch: 20 }
+                ];
+
+                XLSX.utils.book_append_sheet(wb, ws2, 'Análisis');
+
+                // Descargar el archivo Excel
+                const fileName = `FeedFlow_Reporte_${dashboardData.periodName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+                // Mostrar notificación de éxito
+                showNotification(`Reporte Excel generado exitosamente: ${fileName}`, 'success');
+                
+                } catch (error) {
+                    console.error('Error generando Excel:', error);
+                    showNotification('Error al generar el reporte Excel. Inténtalo de nuevo.', 'error');
+                } finally {
+                    excelBtn.classList.remove('loading');
+                }
+            };
         });
     </script>
 </body>

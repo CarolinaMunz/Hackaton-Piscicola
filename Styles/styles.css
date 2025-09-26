@@ -1381,12 +1381,13 @@ label {
     align-items: center;
     gap: var(--spacing-xl);
     margin-bottom: var(--spacing-xxl);
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xl) 0;
     background: var(--bg-white);
     border-radius: var(--border-radius-xxl);
     box-shadow: var(--shadow-xl);
     overflow: hidden;
     position: relative;
+    max-height: min(75vh, 560px);
 }
 
 .hero::before {
@@ -1403,39 +1404,70 @@ label {
 .hero-content {
     flex: 1;
     padding: 0 var(--spacing-xl);
+    max-width: 720px;
+    text-align: left;
     z-index: 1;
 }
 
 .hero-content h2 {
-    font-size: var(--font-size-5xl);
+    font-size: calc(var(--font-size-4xl) * 1.25);
     color: #ffffff;
     margin-bottom: var(--spacing-md);
     font-weight: 700;
     line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .hero-content p {
-    font-size: var(--font-size-xl);
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-lg);
+    font-size: calc(var(--font-size-lg) * 1.25);
+    color: #ffffff;
+    margin-bottom: var(--spacing-md);
     line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
 
 .hero-buttons {
     display: flex;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     flex-wrap: wrap;
+    margin-top: var(--spacing-md);
+}
+
+/* Compacta los botones dentro del hero para evitar recortes */
+.hero .btn {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: calc(var(--font-size-base) * 1.1);
 }
 
 .hero-image {
-    flex: 0 0 240px;
+    position: absolute;
+    right: var(--spacing-xl);
+    bottom: -8px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--primary-color);
-    opacity: 0.1;
-    font-size: 10rem;
+    opacity: 0.12;
+    font-size: 8rem;
     animation: pulse 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* En desktop, reserva espacio a la derecha para el ícono decorativo */
+@media (min-width: 992px) {
+    .hero {
+        padding-right: 260px;
+    }
+    .hero-image {
+        font-size: 9rem;
+        right: var(--spacing-xl);
+    }
+}
+
+/* Ajuste leve para pantallas grandes: recupera un poco de tamaño sin cortar */
+@media (min-width: 1200px) {
+    .hero-content h2 { font-size: calc(var(--font-size-5xl) * 1.1); }
+    .hero-image { font-size: 9rem; flex: 0 0 220px; }
 }
 
 @keyframes pulse {
@@ -1458,8 +1490,20 @@ label {
     text-align: center;
     font-size: var(--font-size-4xl);
     color: var(--primary-color);
-    margin-bottom: var(--spacing-xxl);
-    font-weight: 700;
+    margin-bottom: var(--spacing-xl);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    position: relative;
+}
+
+.features h3::after {
+    content: '';
+    display: block;
+    width: 72px;
+    height: 4px;
+    margin: var(--spacing-sm) auto 0;
+    background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+    border-radius: 999px;
 }
 
 .features-grid {
@@ -1554,6 +1598,7 @@ label {
     padding: var(--spacing-xl);
     border-radius: var(--border-radius-xl);
     box-shadow: var(--shadow-xl);
+    border: 1px solid #e9eef5;
     text-align: center;
     text-decoration: none;
     color: inherit;
@@ -1583,6 +1628,7 @@ label {
 .quick-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-2xl);
+    border-color: var(--primary-color);
 }
 
 .quick-card i {
